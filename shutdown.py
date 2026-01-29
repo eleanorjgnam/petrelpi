@@ -1,0 +1,38 @@
+#"shutdown.py" script FOR Research article for submission to Methods in Ecology and Evolution. 
+#Hereward et al., Raspberry Pi nest cameras – an affordable tool for remote behavioural and conservation monitoring of bird nests. 
+
+
+# This script will wait for a button to be pressed and then shutdown
+# the Raspberry Pi.
+# The clicker is to be connected on pins 39 (GND) & 40 (GPIO 21) 
+
+# http://kampis-elektroecke.de/?page_id=3740
+# http://raspi.tv/2013/how-to-use-interrupts-with-python-on-the-raspberry-pi-and-rpi-gpio
+# https://pypi.python.org/pypi/RPi.GPIO
+
+import RPi.GPIO as GPIO
+import time
+import os
+
+# we will use the pin numbering of the SoC, so our pin numbers in the code are 
+# the same as the pin numbers on the gpio headers
+GPIO.setmode(GPIO.BCM)  
+
+# Pin 40 (GPIO 21) will be input and will have his pull up resistor activated
+# so the only other connection needed is to ground (pin 39 = GND)
+SD_PIN=21
+GPIO.setup(SD_PIN, GPIO.IN, pull_up_down = GPIO.PUD_UP)  
+
+# ISR: if our button is pressed, we will have a falling edge on pin 21
+# this will trigger this interrupt:
+def Int_shutdown(channel):  
+	# shutdown our Raspberry Pi
+    os.system("sudo shutdown -h now")
+	
+# Now we are programming GPIO 21 as an interrupt input
+# it will react on a falling edge and call our interrupt routine "Int_shutdown"
+GPIO.add_event_detect(SD_PIN, GPIO.FALLING, callback = Int_shutdown, bouncetime = 2000)   
+
+# do nothing while waiting for button to be pressed
+while 1:
+    time.sleep(1)
