@@ -14,6 +14,8 @@
 #first need to find out the unique reference UUID code for the USB:
 #open raspberry pi terminal and type in:
 ls -l /dev/disk/by-uuid/
+
+#92E5-2C62
 #the USB has /sda1 at the end.
 #Make note of the blue highlighted combination.
 
