@@ -12,7 +12,7 @@ RECORD_TIME = 30
 SLEEP_TIME = 30
 
 ST_JOHNS_LAT = 47.33
-ST_JOHNS_LON = 52.42
+ST_JOHNS_LON = -52.42
 
 def compute_times():
     sun = Sun(ST_JOHNS_LAT, ST_JOHNS_LON)
