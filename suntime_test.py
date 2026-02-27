@@ -16,7 +16,7 @@ SLEEP_TIME = 30
 ST_JOHNS_LAT = 47.33
 ST_JOHNS_LON = -52.42
 
-current_time = datetime.now().time()
+current_time = datetime.now(tz=tz.gettz("America/St_Johns"))
 
 def compute_times():
     sun = Sun(ST_JOHNS_LAT, ST_JOHNS_LON)
@@ -32,10 +32,10 @@ camera_status_switch = start
 recording = False
 
 while True:
-    current_time = datetime.now().time()
+    current_time = datetime.now(tz=tz.gettz("America/St_Johns"))
 
-    if current_time >= start.time() or current_time <= end.time(): # check if current time is in recording time window
-        if current_time >= camera_status_switch.time(): # check if the camera status needs to be switch
+    if current_time >= start or current_time <= end: # check if current time is in recording time window
+        if current_time >= camera_status_switch: # check if the camera status needs to be switch
             if recording: # has been recording.  shutdown the camera
                 camera_status_switch = camera_status_switch + timedelta(minutes=SLEEP_TIME)
                 timestamp = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
@@ -50,5 +50,5 @@ while True:
             timestamp = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
             print(f"{timestamp}: stop")
 
-    if current_time >= time(0,0) and current_time < time(0, 1):
+    if current_time.time() >= time(0,0) and current_time.time() < time(0, 1):
         compute_times()
