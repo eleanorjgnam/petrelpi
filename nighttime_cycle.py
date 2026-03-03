@@ -48,5 +48,5 @@ while True:
         if recording:
             picam2.stop_recording()
 
-    if current_time.time() >= time(0,0) and current_time < time(0, 1):
+    if current_time.time() >= time(0,0) and current_time.time() < time(0, 1):
         compute_times()
