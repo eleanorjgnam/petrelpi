@@ -5,6 +5,19 @@ from picamera2 import Picamera2
 from datetime import datetime, timedelta
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FfmpegOutput
+import RPi.GPIO as GPIO
+
+terminate = False
+BUTTON_STOP = 13
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUTTON_STOP, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+
+def stop_program(channel):
+    global terminate
+    terminate = True
+
+GPIO.add_event_detect(BUTTON_STOP, GPIO.FALLING, callback=stop_program, bouncetime= 1000)
 
 
 R = 30 # 30min video. How long you want to record for
@@ -16,7 +29,7 @@ video_config=picam2.configure(picam2.create_video_configuration(main={"size": (6
 event_time = datetime.now() - timedelta(minutes=R)
 recording = False
 
-while True:
+while not terminate:
     current_time = datetime.now()
 
     # if the camera is not recording and it has been longer than the delay time since the last change
@@ -39,3 +52,5 @@ while True:
         event_time = datetime.now()
         picam2.stop_recording()
         print ("idle\n")
+
+picam2.stop_recording()

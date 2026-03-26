@@ -4,6 +4,19 @@ from suntime import Sun
 from picamera2 import Picamera2
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FfmpegOutput
+import RPi.GPIO as GPIO
+
+terminate = False
+BUTTON_STOP = 13
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUTTON_STOP, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+
+def stop_program(channel):
+    global terminate
+    terminate = True
+
+GPIO.add_event_detect(BUTTON_STOP, GPIO.FALLING, callback=stop_program, bouncetime= 1000)
 
 picam2 = Picamera2()
 video_config = picam2.configure(picam2.create_video_configuration(main={"size": (640,480)}))
@@ -26,7 +39,7 @@ compute_times()
 camera_status_switch = start
 recording = False
 
-while True:
+while not terminate:
     current_time = datetime.now(tz=TIME_ZONE)
 
     if current_time >= start or current_time <= end: # check if current time is in recording time window
@@ -50,3 +63,5 @@ while True:
 
     if current_time.time() >= time(0,0) and current_time.time() < time(0, 1):
         compute_times()
+
+picam2.stop_recording()

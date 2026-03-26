@@ -5,9 +5,21 @@ from picamera2.encoders import H264Encoder
 from picamera2.outputs import FfmpegOutput
 from datetime import datetime, timedelta
 from dateutil import tz
+import RPi.GPIO as GPIO
+
+terminate = False
+BUTTON_STOP = 13
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUTTON_STOP, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+
+def stop_program(channel):
+    global terminate
+    terminate = True
+
+GPIO.add_event_detect(BUTTON_STOP, GPIO.FALLING, callback=stop_program, bouncetime= 1000)
 
 channel = 17
-GPIO.setmode(GPIO.BCM)
 GPIO.setup(channel, GPIO.IN)
 
 picam2 = Picamera2()
@@ -29,7 +41,7 @@ def callback(channel):
 GPIO.add_event_detect(channel, GPIO.BOTH, bouncetime=300)
 GPIO.add_event_callback(channel, callback)
 
-while True:
+while not terminate:
     if sound_detected_flag: #sound was detected
         if (last_sound_detected + KEEP_LISTENING_FOR) <= datetime.now(): # the last sound detected was a while ago
             sound_detected_flag = False
@@ -44,3 +56,5 @@ while True:
                 picam2.set_controls({"FrameRate":8})
                 picam2.start_recording(encoder,output=filename)
                 recording = True
+
+picam2.stop_recording()
